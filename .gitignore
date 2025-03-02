@@ -1,0 +1,13 @@
+# emacs config literate auto translation
+readme.el
+
+# default emacs files
+ido.last
+tramp
+
+# default emacs folders
+eshell/
+eln-cache/
+auto-save-list/
+transient/
+elpa/

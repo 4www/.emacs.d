@@ -1,0 +1,17 @@
+image: iquiw/alpine-emacs
+
+variables:
+  SSG_BASE_PATH: emacs
+
+.build: &build
+  script:
+  - emacs --batch --no-init-file --load publish-site.el --funcall org-publish-all
+  - mv public/readme.html public/index.html
+  artifacts:
+    paths:
+    - public
+
+pages:
+  <<: *build
+  only:
+  - main
