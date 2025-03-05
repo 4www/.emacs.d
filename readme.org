@@ -491,12 +491,13 @@ Move text up and down lines.
   )
 #+end_src
 
-** web bookmarks
+** COMMENT web bookmarks
 Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jarun/buku][buku]] web boomarks.
 #+begin_src elisp
 (use-package ebuku
-  :vc (:url "git@github.com:flexibeast/ebuku.git"
-            :rev :newest)
+  :if (>= emacs-major-version 30)
+  ;; :vc (:url "git@github.com:flexibeast/ebuku.git"
+  ;;           :rev :newest)
   :preface
 	(setq ebuku-results-limit 200))
 #+end_src
@@ -527,7 +528,8 @@ modes that depend on it. Check this [[https://tree-sitter.github.io/tree-sitter/
           (toml "https://github.com/tree-sitter/tree-sitter-toml")
           (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
           (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-          (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+          (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+          (astro "https://github.com/virchau13/tree-sitter-astro")))
   (setq major-mode-remap-alist
         '((yaml-mode . yaml-ts-mode)
           (bash-mode . bash-ts-mode)
@@ -616,6 +618,50 @@ navigate through completion options, and =C-s= to search through them
 (use-package yaml-mode)
 #+end_src
 
+*** web-mode
+Use web-mode on the file extensions for HTML files. Also provides
+syntax highlighting for JavaScript; js2mode does not work so well for
+us, use web-mode instead.
+#+begin_src elisp
+(use-package web-mode
+  :mode (("\\.erb\\'" . web-mode)
+         ("\\.vue\\'" . web-mode)
+         ("\\.hbs\\'" . web-mode)
+         ("\\.tmpl\\'" . web-mode)
+         ("\\.html\\'" . web-mode)
+         ("\\.js\\'" . web-mode)
+         ("\\.json\\'" . web-mode)
+         ("\\.css\\'" . web-mode)
+         ("\\.mjs\\'" . web-mode)
+         ("\\.jsx\\'" . web-mode)
+         ("\\.tsx\\'" . web-mode)
+         ("\\.astro\\'" . web-mode)
+         ("\\.php\\'" . web-mode))
+  :preface
+  (add-to-list 'org-src-lang-modes '("html" . web))
+  :config
+  (setq web-mode-content-types-alist' (("jsx" . "\\.js[x]?\\'")))
+  (setq web-mode-enable-auto-pairing nil)
+  (setq web-mode-enable-auto-closing nil)
+  (setq web-mode-enable-current-element-highlight t)
+  (setq web-mode-enable-current-column-highlight t)
+  (setq web-mode-enable-element-content-fontification t)
+  (setq web-mode-enable-html-entities-fontification t)
+  (setq web-mode-enable-part-face t)
+  (setq web-mode-enable-inlays t)
+  (setq web-mode-enable-sql-detection t)
+  (setq web-mode-enable-block-face t)
+  (setq web-mode-enable-string-interpolation t)
+  (setq web-mode-script-padding 0)
+  (setq web-mode-style-padding 0)
+  (setq web-mode-block-padding 0)
+  (setq web-mode-comment-style 2)
+  (setq web-mode-indent-style 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-sql-indent-offset 2))
+#+end_src
 *** COMMENT CSV
 #+begin_src elisp
 (use-package csv)
@@ -640,9 +686,11 @@ to format json in a buffer.
 (use-package pyenv-mode)
 #+end_src
 
-*** COMMENT rust
+*** rust
 #+begin_src elisp
-(use-package rust-mode)
+(use-package rust-mode
+  :init
+  (setq rust-mode-treesitter-derive t))
 #+end_src
 
 *** COMMENT clojure
@@ -666,22 +714,21 @@ For nix package manager and expressions.
 #+end_src
 
 *** docker
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package docker
   :bind ("C-c d" . docker)
   :defer t)
 #+end_src
 *** caddy
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package caddyfile-mode
   :ensure t
   :mode (("Caddyfile\\'" . caddyfile-mode)
          ("caddy\\.conf\\'" . caddyfile-mode)))
 #+end_src
 
-*** javascript frameworks
-**** svelte
+*** svelte
 Svelte files syntax highlighting.
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package svelte-mode)
 #+end_src
