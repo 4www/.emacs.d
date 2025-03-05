@@ -1,96 +1,128 @@
 #+TITLE: emacs config file
 This file is a literate configuration file for emacs.
 
-* Tools
-** Browse the web
-We can use =eww= or =browse-url=.
-
 * Interface elements
 Remove the audio bell making annoying noises.
 #+begin_src elisp
-(setq ring-bell-function 'ignore)
+(use-package emacs
+  :config
+  (setq ring-bell-function 'ignore))
 #+end_src
 
-Hide the tool and menu bar.
+Hide the tool, menu bar, and buffer scrollbar.
 #+begin_src elisp
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-#+end_src
-
-Hide the buffer scrollbar.
-#+begin_src elisp
-(if (fboundp 'scroll-bar-mode)
-    (scroll-bar-mode -1))
+(use-package emacs
+  :config
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (if (fboundp 'scroll-bar-mode)
+      (scroll-bar-mode -1)))
 #+end_src
 
 Customize the "fringe" on the side of the window.
 #+begin_src elisp
-(set-fringe-mode nil)
+(use-package emacs
+  :config
+  (set-fringe-mode nil))
 #+end_src
 
 Alias emacs' UI yes-or-no questions, into y-or-n questions.
-#+begin_src emacs-lisp
-(defalias 'yes-or-no-p 'y-or-n-p)
+#+begin_src elisp
+(use-package emacs
+  :config
+  (defalias 'yes-or-no-p 'y-or-n-p))
 #+end_src
 
 * Themes
+Some functions with shortcuts to toggle one theme or another. If emacs
+is launched in graphical environment (so, not when in =emacs -nw=), use
+the dark theme by default.
 #+begin_src elisp
-(load-theme 'modus-vivendi)
+(use-package emacs
+  :init
+  (defun switch-to-dark-theme ()
+    "Switch the current theme to a user customized terminal dark theme"
+    (interactive)
+    (load-theme 'modus-vivendi)
+    (disable-theme 'modus-operandi))
+
+  (defun switch-to-light-theme ()
+    "Disable the dark theme, to default, to the default light one"
+    (interactive)
+    (disable-theme 'modus-vivendi)
+    (if (custom-theme-p 'modus-operandi)
+        (load-theme 'modus-operandi)))
+  :bind
+  ("C-c t" . 'switch-to-dark-theme)
+  ("C-c T" . 'switch-to-light-theme)
+  :config
+  (if (display-graphic-p)
+      (switch-to-dark-theme)
+    (switch-to-light-theme)))
 #+end_src
 
 * Custom functions
 ** yank (paste) forward/backward
 It is great to be able to "cycle through the copy/paste ring" (used like undo/redo).
-#+begin_src emacs-lisp
-(defun yank-pop-forwards (args)
-  (interactive "p")
-  (yank-pop (- args)))
-(global-set-key "\M-Y" 'yank-pop-forwards)
+#+begin_src elisp
+(use-package emacs
+  :init
+  (defun yank-pop-forwards (args)
+    (interactive "p")
+    (yank-pop (- args)))
+  :bind
+  ("\M-Y" . 'yank-pop-forwards))
 #+end_src
 
 ** reload/visit this emacs configuraton
 Convenience function to visit and reload our emacs configuration files.
-#+begin_src emacs-lisp
-(defun config-visit()
-  "Visit the emacs config directory, to quickly access and make changes."
-  (interactive)
-  (find-file "~/.emacs.d/"))
-(global-set-key (kbd "C-c e") 'config-visit)
+#+begin_src elisp
+(use-package emacs
+  :init
+  (defun config-visit()
+    "Visit the emacs config directory, to quickly access and make changes."
+    (interactive)
+    (find-file "~/.emacs.d/"))
+  (defun config-reload()
+    "Reload the user config, to get the latest saved changes"
+    (interactive)
+    (load user-init-file))
 
-;; a function to reload this file
-(defun config-reload()
-  "Reload the user config, to get the latest saved changes"
-  (interactive)
-  (load user-init-file))
-(global-set-key (kbd "C-c r") 'config-reload)
+  :bind
+  ("C-c e" . 'config-visit)
+  ("C-c r" . 'config-reload))
 #+end_src
 
 ** Scratch buffer
 Find existing or open a new buffer named =*scratch*=, if we killed the
 default one.
-#+begin_src emacs-lisp
-(defun find-scratch-buffer ()
-  "Get or create the *scratch* buffer"
-  (interactive)
-  (switch-to-buffer (get-buffer-create "*scratch*")))
-(global-set-key (kbd "C-c b") 'find-scratch-buffer)
+#+begin_src elisp
+(use-package emacs
+  :init
+  (defun find-scratch-buffer ()
+    "Get or create the *scratch* buffer"
+    (interactive)
+    (switch-to-buffer (get-buffer-create "*scratch*")))
+  :bind
+  ("C-c b" . 'find-scratch-buffer))
 #+end_src
 
-*
 * Defaults behaviors
 ** Backup files
 Set emacs backup folder to =~/<emacs-dir>/backups=, but also
 deactivate the automatic creation of backup and lock files.
-#+begin_src emacs-lisp
-(setq backup-directory-alist `(("." . (concat user-emacs-directory "backups"))))
+#+begin_src elisp
+(use-package emacs
+  :init
+  (setq backup-directory-alist `(("." . (concat user-emacs-directory "backups"))))
 
-;; do not make bakup files and disable auto-save,
-;; because of the file artifacts they create
-(setq make-backup-files nil)
-(setq auto-save-default nil)
+  ;; do not make bakup files and disable auto-save,
+  ;; because of the file artifacts they create
+  (setq make-backup-files nil)
+  (setq auto-save-default nil)
 
-;; do not create/use lockfiles (used to prevent colisions, breaks react)
-(setq create-lockfiles nil)
+  ;; do not create/use lockfiles (used to prevent colisions, breaks react)
+  (setq create-lockfiles nil))
 #+end_src
 
 ** Isolate autogenerated emacs =init.el= to =custom.el=
@@ -98,76 +130,146 @@ Emacs stores some configuration in a file, which by default is the
 =./init.el= file. This makes vendoring the init.el in Git tricky, so we
 can change it to its own file, and load it (otherwise we would not
 load our changes through =M-x= =customize=).
-#+begin_src emacs-lisp
-(setq custom-file (concat user-emacs-directory "custom.el"))
-(when (file-exists-p custom-file)
-  (load-file custom-file))
+#+begin_src elisp
+(use-package emacs
+  :init
+  (setq custom-file (concat user-emacs-directory "custom.el"))
+  (when (file-exists-p custom-file)
+    (load-file custom-file)))
 #+end_src
 ** Automatic update file when changed on disk
 If a file has been edited (and saved) by an other software, reload the
 file buffer in emacs (so we see the latest version).
-#+begin_src emacs-lisp
-(global-auto-revert-mode)
+#+begin_src elisp
+(use-package emacs
+  :init
+  (global-auto-revert-mode))
 #+end_src
 
-** Display all white spaces and tabs
+** whitespaces (and tabs)
 Use whitespace-mode globally to always display whitespaces in buffers
 (because we like to catch trailling whitespaces and see
 indentation). Also, let's not show whitespace-characters in some modes
 where it is too annoying to look at.
-#+begin_src emacs-lisp
-;; define modes NOT using whitespace-mode
-(setq-default whitespace-global-modes
-              '(not org-mode
-                    magit-mode
-                    magit-status-mode
-                    dired-mode))
-(global-whitespace-mode -1)
+#+begin_src elisp
+(use-package emacs
+  :init
+  (setq-default whitespace-global-modes
+                '(not org-mode
+                      magit-mode
+                      magit-status-mode
+                      dired-mode))
+  (global-whitespace-mode -1)
 
-;; a little hack, so long lines are not marked as errors by whitespace-mode
-(setq-default whitespace-line-column 500)
+  ;; a little hack, so long lines are not marked as errors by whitespace-mode
+  (setq-default whitespace-line-column 500))
 #+end_src
 
-** identation (not spaces)
+** identation
 This or that, but tries to set all to use tabs for indentation.
-#+begin_src emacs-lisp
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)
-;; (defvaralias 'c-basic-offset 'tab-width)
-;; (defvaralias 'cperl-indent-level 'tab-width)
+#+begin_src elisp
+(use-package emacs
+  :init
+  ;; (defvaralias 'c-basic-offset 'tab-width)
+  ;; (defvaralias 'cperl-indent-level 'tab-width)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 2))
 #+end_src
 
-* Package manager
+** character pairing
+Auto-close parenthesis when opening one; should work with =([{=
+#+begin_src elisp
+(use-package emacs
+  :init
+  ;; automatically adds closing matching pair when the opening is inserted.
+  (setq-default electric-pair-pairs '((?\( . ?\))
+                                      (?\[ . ?\])
+                                      (?\{ . ?\})))
+  (electric-pair-mode 1))
+#+end_src
+
+** font-size and line-spacing
+Adjust the font size depending on screen size.
+#+begin_src elisp
+(use-package emacs
+  :init
+  (if (> (display-pixel-width) 1400)
+      (set-face-attribute 'default nil :height 120)
+    (set-face-attribute 'default nil :height 116))
+
+  (setq line-spacing nil))
+#+end_src
+
+** shell/terminal defaults
+Define the default shell to being =bash= (in guix profile) in =eshell= and
+=ansi-term=.
+#+begin_src elisp
+(use-package emacs
+  :init
+  (defvar default-shell "/bin/bash")
+  (setq shell-file-name "bash")
+  (setq shell-command-switch "-ic")
+
+  (defadvice ansi-term (before force-bash)
+    (interactive (list default-shell)))
+
+  (ad-activate 'ansi-term))
+#+end_src
+
+An interactive function to create a new =eshell= buffer instead of each
+time using the same; leave it possible to call the same eshell. We
+replace the default shortcut used to get to eshell, but keep it
+accessible in a new one.
+#+begin_src elisp
+(use-package emacs
+  :init
+  (defun eshell-new()
+    "Open a new instance of eshell, instead of existing instance"
+    (interactive)
+    (eshell 'N))
+  :bind
+  ("C-c M-c" . 'eshell-new)
+  ("C-c C-M-c" . 'eshell))
+#+end_src
+
+If =eshell= does not render content properly also try
+=M-x= =ansi-term=.
+
+Also =shell=, it knows how to evaluate lisp code in its buffer.
+** emacs diary
+#+begin_src elisp
+(use-package emacs
+  :init
+  (setq diary-file "~/notes/diary.org.gpg"))
+#+end_src
+
+* package manager
 To use emacs packages, we first need to require its built-in
 packagement magement functionnalities.
 
 We can also define additional package archives, where the remote
 packages can be downloaded from.
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package package
-  :init
+  :preface
   (require 'package)
   (setq package-enable-at-startup nil)
   (setq package-archives
 	      '(("melpa"        . "https://melpa.org/packages/")
 	        ("org"          . "https://orgmode.org/elpa/")
-	        ("gnu"          . "https://elpa.gnu.org/packages/"))))
+	        ("gnu"          . "https://elpa.gnu.org/packages/")))
+  :init
+  ;; Load Emacs Lisp packages, and activate them.
+  (package-initialize)
+  ;; Download descriptions of all configured ELPA packages.
+  (package-refresh-contents)
+  ;; Treat every package as though it had `:ensure t` to download its files
+  (setq use-package-always-ensure t))
 #+end_src
 
-Load Emacs Lisp packages, and activate them.
-#+begin_src elisp
-;; Load Emacs Lisp packages, and activate them.
-(package-initialize)
-;; Download descriptions of all configured ELPA packages.
-(package-refresh-contents)
-;; Treat every package as though it had `:ensure t` to download its files
-(setq use-package-always-ensure t)
-#+end_src
-
-* Packages
-** PGP/GPG
-
-*** Easy PGP
+* packages
+** pgp/gpg
+*** easy pgp
 #+begin_src elisp
 (use-package epg
   :config
@@ -180,7 +282,7 @@ Load Emacs Lisp packages, and activate them.
   )
 #+end_src
 
-*** Pinentry
+*** pinentry
 Some docs on these settings is found on [[https://stackoverflow.com/questions/60812866/emacs-gpg-pinentry-el-for-authentication][Stackoverflow1]] and
 [[https://emacs.stackexchange.com/questions/70460/tramp-ssh-connection-inside-eshell-with-gpg-key][Stackoverflow2]].
 
@@ -249,21 +351,21 @@ ssh -v git@github.com
 #+end_src
 
 Example auth-source usages.
-#+begin_src emacs-lisp
+#+begin_src elisp
 ;; (auth-source-search :max 3)
 ;; (auth-source-search :max 1
 ;;                    :host system-name
 ;;                    :require '(:user :secret))
 #+end_src
 
-** Git
+** git
 #+begin_src elisp
 (use-package magit)
 #+end_src
 
 Highlights git diffs in the margit (fringe) of files, and dired
 buffers, when in a git repository.
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package diff-hl
   :ensure t
   :config
@@ -278,7 +380,7 @@ it looks bad on git{hub/lab}, and for *all other people*.
 
 See [[https://emacs.stackexchange.com/questions/16652/change-the-behavior-of-org-mode-auto-expand-relative-path-in-link][this stackoverflow for org-link-file-path-type]]
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package org
   :config
   ;; hide emphasis markup,italics, bold, code etc.
@@ -299,8 +401,8 @@ See [[https://emacs.stackexchange.com/questions/16652/change-the-behavior-of-org
 ** images
 Emacs does not support =webp= image format by default. =imagemagick=
 or =ffmpeg= should also be installed on the machine.
-#+begin_src emacs-lisp
-(use-package image
+#+begin_src elisp
+(use-package image-dired
   :custom
   ;; Enable converting external formats (ie. webp) to internal ones.
   (image-use-external-converter t))
@@ -310,18 +412,18 @@ or =ffmpeg= should also be installed on the machine.
 The standard unix password manager in emacs.
 
 *** pass
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package pass)
 #+end_src
 
 *** password-store
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package password-store)
 #+end_src
 
 *** password-store-otp
 One time passwords for 2FA authentication.
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package password-store-otp)
 #+end_src
 
@@ -332,14 +434,15 @@ Use =ibuffer= instead of =list-buffer=, to switch btw buffers.
   :config (global-set-key (kbd "C-x C-b") 'ibuffer))
 #+end_src
 
-** editorconfig (to remove in emacs 30, default)
+** editorconfig
 Use editor config files in projects to harmonize tabs/spaces usages
 between team members.
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package editorconfig
   :config
   (editorconfig-mode 1))
 #+end_src
+
 ** grep
 Exclude the following folders from grep search results; for =rgrep=
 and =lgrep=.
@@ -376,7 +479,7 @@ Move text up and down lines.
 #+end_src
 
 ** ido
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package ido
   :init
   (ido-mode 1)
@@ -386,4 +489,199 @@ Move text up and down lines.
   ;;   :init (setq ido-enable-flex-matching t)
   ;;   :config (flx-ido-mode 1))
   )
+#+end_src
+
+** web bookmarks
+Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jarun/buku][buku]] web boomarks.
+#+begin_src elisp
+(use-package ebuku
+  :vc (:url "git@github.com:flexibeast/ebuku.git"
+            :rev :newest)
+  :preface
+	(setq ebuku-results-limit 200))
+#+end_src
+
+** languages
+*** treesitter
+=treesit.el= seems to be built-in, but cannot have it in
+use-package. Somehow tree-sitter is still required and provides to
+global mode. This package(s) provide syntax highlighting for major
+modes that depend on it. Check this [[https://tree-sitter.github.io/tree-sitter/][list of all languages]].
+#+begin_src elisp
+(use-package tree-sitter
+  :if (treesit-available-p)
+  :init
+  (setq treesit-language-source-alist
+        '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+          (cmake "https://github.com/uyha/tree-sitter-cmake")
+          (css "https://github.com/tree-sitter/tree-sitter-css")
+          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+          (go "https://github.com/tree-sitter/tree-sitter-go")
+          (rust "https://github.com/tree-sitter/tree-sitter-rust")
+          (html "https://github.com/tree-sitter/tree-sitter-html")
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+          (json "https://github.com/tree-sitter/tree-sitter-json")
+          (make "https://github.com/alemuller/tree-sitter-make")
+          (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+          (python "https://github.com/tree-sitter/tree-sitter-python")
+          (toml "https://github.com/tree-sitter/tree-sitter-toml")
+          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+          (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+          (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+  (setq major-mode-remap-alist
+        '((yaml-mode . yaml-ts-mode)
+          (bash-mode . bash-ts-mode)
+          (js2-mode . js-ts-mode)
+          (typescript-mode . typescript-ts-mode)
+          (json-mode . json-ts-mode)
+          (css-mode . css-ts-mode)
+          (python-mode . python-ts-mode)))
+  :config
+  (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
+  (global-tree-sitter-mode))
+#+end_src
+
+*** eglot
+This is a LSP client.
+#+begin_src elisp
+(use-package eglot
+  :hook (prog-mode . eglot-ensure)
+  :bind (:map
+         eglot-mode-map
+         ("C-c c a" . eglot-code-actions)
+         ("C-c c o" . eglot-code-actions-organize-imports)
+         ("C-c c r" . eglot-rename)
+         ("C-c c f" . eglot-format)))
+#+end_src
+
+*** eldoc
+#+begin_src elisp
+(use-package eldoc
+  :init
+  (global-eldoc-mode))
+#+end_src
+
+*** flymake
+#+begin_src elisp
+(use-package flymake
+  :hook (prog-mode . flymake-mode)
+  :bind (:map flymake-mode-map
+              ("C-c ! n" . flymake-goto-next-error)
+              ("C-c ! p" . flymake-goto-prev-error)
+              ("C-c ! l" . flymake-show-buffer-diagnostics)))
+#+end_src
+
+*** COMMENT corfu
+Alternative to =company= for completion.
+#+begin_src elisp
+(use-package corfu
+  :init
+  (global-corfu-mode))
+#+end_src
+
+*** company
+Provide auto-completion, and enable it globally =C-n= and =C-p= to
+navigate through completion options, and =C-s= to search through them
+(when the dropwdown completion menu is open).
+#+begin_src elisp
+(use-package company
+  :ensure t
+  :commands (global-company-mode)
+  :init
+  (global-company-mode)
+  :custom
+  (company-tooltip-align-annotations 't)
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.1))
+#+end_src
+
+*** COMMENT flycheck
+#+begin_src elisp
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+#+end_src
+
+*** markdown
+#+begin_src elisp
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown")
+  :bind (:map markdown-mode-map
+              ("C-c C-e" . markdown-do)))
+#+end_src
+*** yaml
+#+begin_src elisp
+(use-package yaml-mode)
+#+end_src
+
+*** COMMENT CSV
+#+begin_src elisp
+(use-package csv)
+#+end_src
+
+*** COMMENT JSON
+This mode gives json syntax highlighting.
+#+begin_src elisp
+(use-package json)
+#+end_src
+
+Also note =C-u M-|= (shell command on region), then =python -m json.tool=,
+to format json in a buffer.
+
+*** COMMENT golang
+#+begin_src elisp
+(use-package go-mode)
+#+end_src
+
+*** COMMENT python
+#+begin_src elisp
+(use-package pyenv-mode)
+#+end_src
+
+*** COMMENT rust
+#+begin_src elisp
+(use-package rust-mode)
+#+end_src
+
+*** COMMENT clojure
+#+begin_src elisp
+(use-package clojure-mode)
+#+end_src
+
+*** COMMENT clojurescript
+#+begin_src elisp
+(use-package cider
+  :preface
+  (require 'ob-clojure)
+  (setq org-babel-clojure-backend 'cider))
+#+end_src
+
+*** COMMENT nix
+For nix package manager and expressions.
+#+begin_src elisp
+(use-package nix-mode
+  :mode "\\.nix\\'")
+#+end_src
+
+*** docker
+#+begin_src emacs-lisp
+(use-package docker
+  :bind ("C-c d" . docker)
+  :defer t)
+#+end_src
+*** caddy
+#+begin_src emacs-lisp
+(use-package caddyfile-mode
+  :ensure t
+  :mode (("Caddyfile\\'" . caddyfile-mode)
+         ("caddy\\.conf\\'" . caddyfile-mode)))
+#+end_src
+
+*** javascript frameworks
+**** svelte
+Svelte files syntax highlighting.
+#+begin_src emacs-lisp
+(use-package svelte-mode)
 #+end_src

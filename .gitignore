@@ -1,9 +1,12 @@
 # emacs config literate auto translation
 readme.el
+custom.el
 
 # default emacs files
 ido.last
 tramp
+session.*
+projects
 
 # default emacs folders
 eshell/
@@ -11,3 +14,6 @@ eln-cache/
 auto-save-list/
 transient/
 elpa/
+tree-sitter/
+tutorial/
+url/
