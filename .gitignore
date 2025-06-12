@@ -7,6 +7,7 @@ ido.last
 tramp
 session.*
 projects
+bookmarks
 
 # default emacs folders
 eshell/
@@ -17,3 +18,6 @@ elpa/
 tree-sitter/
 tutorial/
 url/
+
+# package config files
+.mc-lists.el

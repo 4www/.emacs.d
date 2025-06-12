@@ -192,11 +192,15 @@ Auto-close parenthesis when opening one; should work with =([{=
 Adjust the font size depending on screen size.
 #+begin_src elisp
 (use-package emacs
+  :if (> (display-pixel-width) 1400)
   :init
-  (if (> (display-pixel-width) 1400)
-      (set-face-attribute 'default nil :height 120)
-    (set-face-attribute 'default nil :height 116))
-
+  (set-face-attribute 'default nil :height 120)
+  (set-face-attribute 'default nil :height 116))
+#+end_src
+** line-space
+#+begin_src elisp
+(use-package emacs
+  :config
   (setq line-spacing nil))
 #+end_src
 
@@ -262,7 +266,7 @@ packages can be downloaded from.
   ;; Load Emacs Lisp packages, and activate them.
   (package-initialize)
   ;; Download descriptions of all configured ELPA packages.
-  (package-refresh-contents)
+  ;; (package-refresh-contents)
   ;; Treat every package as though it had `:ensure t` to download its files
   (setq use-package-always-ensure t))
 #+end_src
@@ -389,9 +393,6 @@ See [[https://emacs.stackexchange.com/questions/16652/change-the-behavior-of-org
   ;; does not indent new lines to match headings indentation
   (setq org-adapt-indentation nil)
 
-  ;; for https://gitlab.com/sctlib/emacs-ssg
-  ;; (setq org-link-file-path-type 'relative)
-
   (setq org-src-preserve-indentation nil)
 
   ;; do not indent source block root
@@ -416,7 +417,9 @@ The standard unix password manager in emacs.
 (use-package pass)
 #+end_src
 
-*** password-store
+*** COMMENT password-store
+commented out because no website for this package, and not reachable
+domain for the author's email.
 #+begin_src elisp
 (use-package password-store)
 #+end_src
@@ -440,7 +443,8 @@ between team members.
 #+begin_src elisp
 (use-package editorconfig
   :config
-  (editorconfig-mode 1))
+  (editorconfig-mode 1)
+  (setq editorconfig-exclude-modes '(org-mode)))
 #+end_src
 
 ** grep
@@ -484,20 +488,19 @@ Move text up and down lines.
   :init
   (ido-mode 1)
   :config
-  ;; (ido-everywhere)
-  ;; (use-package flx-ido
-  ;;   :init (setq ido-enable-flex-matching t)
-  ;;   :config (flx-ido-mode 1))
-  )
+  (ido-everywhere)
+  (use-package flx-ido
+    :init (setq ido-enable-flex-matching t)
+    :config (flx-ido-mode 1)))
 #+end_src
 
-** COMMENT web bookmarks
+** web bookmarks
 Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jarun/buku][buku]] web boomarks.
 #+begin_src elisp
 (use-package ebuku
   :if (>= emacs-major-version 30)
-  ;; :vc (:url "git@github.com:flexibeast/ebuku.git"
-  ;;           :rev :newest)
+  :vc (:url "git@github.com:flexibeast/ebuku.git"
+            :rev :newest)
   :preface
 	(setq ebuku-results-limit 200))
 #+end_src
@@ -507,7 +510,9 @@ Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jaru
 =treesit.el= seems to be built-in, but cannot have it in
 use-package. Somehow tree-sitter is still required and provides to
 global mode. This package(s) provide syntax highlighting for major
-modes that depend on it. Check this [[https://tree-sitter.github.io/tree-sitter/][list of all languages]].
+modes that depend on it. Check this [[https://tree-sitter.github.io/tree-sitter/][list of all languages]], and [[https://github.com/tree-sitter/tree-sitter-cpp/blob/56455f4245baf4ea4e0881c5169de69d7edd5ae7/grammar.js#L53][name of
+associated grammar in a repo]] and the
+=tree-sitter-major-mode-language-alist= variable.
 #+begin_src elisp
 (use-package tree-sitter
   :if (treesit-available-p)
@@ -523,7 +528,6 @@ modes that depend on it. Check this [[https://tree-sitter.github.io/tree-sitter/
           (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
           (json "https://github.com/tree-sitter/tree-sitter-json")
           (make "https://github.com/alemuller/tree-sitter-make")
-          (markdown "https://github.com/ikatyang/tree-sitter-markdown")
           (python "https://github.com/tree-sitter/tree-sitter-python")
           (toml "https://github.com/tree-sitter/tree-sitter-toml")
           (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
@@ -531,23 +535,44 @@ modes that depend on it. Check this [[https://tree-sitter.github.io/tree-sitter/
           (yaml "https://github.com/ikatyang/tree-sitter-yaml")
           (astro "https://github.com/virchau13/tree-sitter-astro")))
   (setq major-mode-remap-alist
-        '((yaml-mode . yaml-ts-mode)
+        '((typescript-mode . typescript-ts-mode)
+          (yaml-mode . yaml-ts-mode)
           (bash-mode . bash-ts-mode)
           (js2-mode . js-ts-mode)
-          (typescript-mode . typescript-ts-mode)
+          (astro . astro-mode)
           (json-mode . json-ts-mode)
           (css-mode . css-ts-mode)
           (python-mode . python-ts-mode)))
   :config
   (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
   (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs)
 #+end_src
 
 *** eglot
-This is a LSP client.
+This is a LSP client. The language server program must be installed
+separately, see =eglot-server-programs= for expected values.
 #+begin_src elisp
 (use-package eglot
-  :hook (prog-mode . eglot-ensure)
+  :hook ((prog-mode . eglot-ensure)
+         ;; (kotlin-mode kotlin-ts-mode) . (lambda () (eglot-ensure))
+         )
+  :custom
+  (eglot-autoshutdown t)
+  (eglot-extend-to-xref t)
+  (eglot-sync-connect 1)
+  (eglot-connect-timeout 60)
+  (eglot-report-progress t)
+  :config
+  (add-to-list 'eglot-server-programs
+               '((kotlin-ts-mode kotlin-mode) . ("bash" "/home/u0/bin/kotlin-0.252.17811/kotlin-lsp.sh" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(astro-mode . ("astro-ls" "--stdio"
+                               :initializationOptions
+                               (:typescript (:tsdk "./node_modules/typescript/lib")))))
+  ;; (add-to-list 'eglot-server-programs
+  ;;              '(svelte-mode . ("svelteserver" "--stdio")))
   :bind (:map
          eglot-mode-map
          ("C-c c a" . eglot-code-actions)
@@ -573,6 +598,19 @@ This is a LSP client.
               ("C-c ! l" . flymake-show-buffer-diagnostics)))
 #+end_src
 
+*** icomplete
+#+begin_src elisp
+(use-package icomplete
+  :bind (:map icomplete-minibuffer-map
+              ("C-n" . icomplete-forward-completions)
+              ("C-p" . icomplete-backward-completions)
+              ("C-v" . icomplete-vertical-toggle)
+              ("RET" . icomplete-force-complete-and-exit))
+  :config
+  (fido-mode 1)
+  (icomplete-mode 1))
+#+end_src
+
 *** COMMENT corfu
 Alternative to =company= for completion.
 #+begin_src elisp
@@ -581,7 +619,7 @@ Alternative to =company= for completion.
   (global-corfu-mode))
 #+end_src
 
-*** company
+*** COMMENT company
 Provide auto-completion, and enable it globally =C-n= and =C-p= to
 navigate through completion options, and =C-s= to search through them
 (when the dropwdown completion menu is open).
@@ -606,16 +644,22 @@ navigate through completion options, and =C-s= to search through them
 
 *** markdown
 #+begin_src elisp
-(use-package markdown-mode
-  :ensure t
-  :mode ("README\\.md\\'" . gfm-mode)
-  :init (setq markdown-command "multimarkdown")
-  :bind (:map markdown-mode-map
-              ("C-c C-e" . markdown-do)))
+;; (use-package markdown-mode
+;;   :ensure t
+;;   :mode (("README\\.md\\'" . gfm-mode)
+;;          ("\\.md\\'" . markdown-mode)))
 #+end_src
+
 *** yaml
 #+begin_src elisp
 (use-package yaml-mode)
+#+end_src
+
+*** typescript
+#+begin_src elisp
+(use-package typescript-ts-mode
+  :mode (("\\.tsx\\'" . typescript-ts-mode)
+         ("\\.ts\\'" . typescript-ts-mode)))
 #+end_src
 
 *** web-mode
@@ -623,45 +667,61 @@ Use web-mode on the file extensions for HTML files. Also provides
 syntax highlighting for JavaScript; js2mode does not work so well for
 us, use web-mode instead.
 #+begin_src elisp
-(use-package web-mode
-  :mode (("\\.erb\\'" . web-mode)
-         ("\\.vue\\'" . web-mode)
-         ("\\.hbs\\'" . web-mode)
-         ("\\.tmpl\\'" . web-mode)
-         ("\\.html\\'" . web-mode)
-         ("\\.js\\'" . web-mode)
-         ("\\.json\\'" . web-mode)
-         ("\\.css\\'" . web-mode)
-         ("\\.mjs\\'" . web-mode)
-         ("\\.jsx\\'" . web-mode)
-         ("\\.tsx\\'" . web-mode)
-         ("\\.astro\\'" . web-mode)
-         ("\\.php\\'" . web-mode))
-  :preface
-  (add-to-list 'org-src-lang-modes '("html" . web))
-  :config
-  (setq web-mode-content-types-alist' (("jsx" . "\\.js[x]?\\'")))
-  (setq web-mode-enable-auto-pairing nil)
-  (setq web-mode-enable-auto-closing nil)
-  (setq web-mode-enable-current-element-highlight t)
-  (setq web-mode-enable-current-column-highlight t)
-  (setq web-mode-enable-element-content-fontification t)
-  (setq web-mode-enable-html-entities-fontification t)
-  (setq web-mode-enable-part-face t)
-  (setq web-mode-enable-inlays t)
-  (setq web-mode-enable-sql-detection t)
-  (setq web-mode-enable-block-face t)
-  (setq web-mode-enable-string-interpolation t)
-  (setq web-mode-script-padding 0)
-  (setq web-mode-style-padding 0)
-  (setq web-mode-block-padding 0)
-  (setq web-mode-comment-style 2)
-  (setq web-mode-indent-style 2)
-  (setq web-mode-code-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-sql-indent-offset 2))
+(use-package web-mode)
+;; (use-package web-mode
+;;   :mode (("\\.erb\\'" . web-mode)
+;;          ("\\.vue\\'" . web-mode)
+;;          ("\\.hbs\\'" . web-mode)
+;;          ("\\.tmpl\\'" . web-mode)
+;;          ("\\.html\\'" . web-mode)
+;;          ("\\.js\\'" . web-mode)
+;;          ("\\.json\\'" . web-mode)
+;;          ("\\.css\\'" . web-mode)
+;;          ("\\.mjs\\'" . web-mode)
+;;          ("\\.jsx\\'" . web-mode)
+;;          ("\\.tsx\\'" . web-mode)
+;;          ("\\.astro\\'" . web-mode)
+;;          ("\\.php\\'" . web-mode))
+;;   :preface
+;;   (add-to-list 'org-src-lang-modes '("html" . web))
+;;   :config
+;;   (setq web-mode-content-types-alist' (("jsx" . "\\.js[x]?\\'")))
+;;   (setq web-mode-enable-auto-pairing nil)
+;;   (setq web-mode-enable-auto-closing nil)
+;;   (setq web-mode-enable-current-element-highlight t)
+;;   (setq web-mode-enable-current-column-highlight t)
+;;   (setq web-mode-enable-element-content-fontification t)
+;;   (setq web-mode-enable-html-entities-fontification t)
+;;   (setq web-mode-enable-part-face t)
+;;   (setq web-mode-enable-inlays t)
+;;   (setq web-mode-enable-sql-detection t)
+;;   (setq web-mode-enable-block-face t)
+;;   (setq web-mode-enable-string-interpolation t)
+;;   (setq web-mode-script-padding 0)
+;;   (setq web-mode-style-padding 0)
+;;   (setq web-mode-block-padding 0)
+;;   (setq web-mode-comment-style 2)
+;;   (setq web-mode-indent-style 2)
+;;   (setq web-mode-code-indent-offset 2)
+;;   (setq web-mode-css-indent-offset 2)
+;;   (setq web-mode-markup-indent-offset 2)
+;;   (setq web-mode-sql-indent-offset 2))
 #+end_src
+
+*** astro
+#+begin_src elisp
+(define-derived-mode astro-mode web-mode "astro")
+(setq auto-mode-alist
+      (append '((".*\\.astro\\'" . astro-mode))
+              auto-mode-alist))
+#+end_src
+
+*** prettier
+#+begin_src elisp
+(use-package apheleia
+	:config (apheleia-global-mode +1))
+#+end_src
+
 *** COMMENT CSV
 #+begin_src elisp
 (use-package csv)
@@ -688,9 +748,12 @@ to format json in a buffer.
 
 *** rust
 #+begin_src elisp
-(use-package rust-mode
-  :init
-  (setq rust-mode-treesitter-derive t))
+(use-package rust-mode)
+#+end_src
+
+*** java/kotlin
+#+begin_src elisp
+(use-package kotlin-mode)
 #+end_src
 
 *** COMMENT clojure
@@ -719,6 +782,7 @@ For nix package manager and expressions.
   :bind ("C-c d" . docker)
   :defer t)
 #+end_src
+
 *** caddy
 #+begin_src elisp
 (use-package caddyfile-mode
@@ -732,3 +796,24 @@ Svelte files syntax highlighting.
 #+begin_src elisp
 (use-package svelte-mode)
 #+end_src
+
+*** gptel (ai)
+#+begin_src emacs-lisp
+(use-package gptel
+  :init
+  (setq gptel-api-key (auth-source-pick-first-password
+                       :host "api.openai.com"
+                       :user "apikey")))
+#+end_src
+** custom packages
+*** COMMENT r4-interface
+A test interface for new r4 supabase in emacs.
+#+begin_src elisp
+(use-package r4-interface
+	:bind ("C-c 4 4" . status)
+	:load-path "~/.emacs.d/lisp/r4-interface"
+	:commands
+	status)
+#+end_src
+
+
