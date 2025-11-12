@@ -8,6 +8,7 @@ tramp
 session.*
 projects
 bookmarks
+timelog
 
 # default emacs folders
 eshell/
@@ -21,3 +22,6 @@ url/
 
 # package config files
 .mc-lists.el
+
+# forge
+forge-database.sqlite

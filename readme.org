@@ -239,6 +239,13 @@ accessible in a new one.
 If =eshell= does not render content properly also try
 =M-x= =ansi-term=.
 
+Install vterm (a claude.el code dependency) — on linux requires
+=libtool-bin= and =cmake= and =libvterm= to work.
+#+begin_src elisp
+(use-package vterm
+  :ensure t)
+#+end_src
+
 Also =shell=, it knows how to evaluate lisp code in its buffer.
 ** emacs diary
 #+begin_src elisp
@@ -272,6 +279,13 @@ packages can be downloaded from.
 #+end_src
 
 * packages
+** exec-path-from-shell
+For eshell to resolve node when installed with nvm.
+#+begin_src elisp
+(use-package exec-path-from-shell
+  :config (when (memq window-system '(mac ns x))
+            (exec-path-from-shell-initialize)))
+#+end_src
 ** pgp/gpg
 *** easy pgp
 #+begin_src elisp
@@ -365,6 +379,10 @@ Example auth-source usages.
 ** git
 #+begin_src elisp
 (use-package magit)
+#+end_src
+
+#+begin_src elisp
+(use-package forge)
 #+end_src
 
 Highlights git diffs in the margit (fringe) of files, and dired
@@ -482,13 +500,18 @@ Move text up and down lines.
 	       ("M-n" . move-text-down)))
 #+end_src
 
+** string inflextions, text convert
+For CamelCase snake_case and kebap-case conversions.
+#+begin_src elisp
+(use-package string-inflection)
+#+end_scr
 ** ido
 #+begin_src elisp
 (use-package ido
   :init
   (ido-mode 1)
-  :config
   (ido-everywhere)
+  :config
   (use-package flx-ido
     :init (setq ido-enable-flex-matching t)
     :config (flx-ido-mode 1)))
@@ -544,7 +567,7 @@ associated grammar in a repo]] and the
           (css-mode . css-ts-mode)
           (python-mode . python-ts-mode)))
   :config
-  (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
+  ;; (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
   (global-tree-sitter-mode))
 
 (use-package tree-sitter-langs)
@@ -644,10 +667,10 @@ navigate through completion options, and =C-s= to search through them
 
 *** markdown
 #+begin_src elisp
-;; (use-package markdown-mode
-;;   :ensure t
-;;   :mode (("README\\.md\\'" . gfm-mode)
-;;          ("\\.md\\'" . markdown-mode)))
+(use-package markdown-mode
+  :ensure t
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)))
 #+end_src
 
 *** yaml
@@ -716,10 +739,11 @@ us, use web-mode instead.
               auto-mode-alist))
 #+end_src
 
-*** prettier
+*** biome 
+
 #+begin_src elisp
-(use-package apheleia
-	:config (apheleia-global-mode +1))
+(use-package lsp-biome
+  :vc (:url "https://github.com/cxa/lsp-biome" :rev :newest))
 #+end_src
 
 *** COMMENT CSV
@@ -797,13 +821,24 @@ Svelte files syntax highlighting.
 (use-package svelte-mode)
 #+end_src
 
-*** gptel (ai)
+*** gptel
 #+begin_src emacs-lisp
 (use-package gptel
   :init
   (setq gptel-api-key (auth-source-pick-first-password
                        :host "api.openai.com"
                        :user "apikey")))
+(setenv "OPENAI_API_KEU" (auth-source-pick-first-password
+                          :host "api.openai.com"
+                          :user "apikey"))
+#+end_src
+*** claude code
+#+begin_src elisp
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :config
+  (claude-code-ide-emacs-tools-setup))
 #+end_src
 ** custom packages
 *** COMMENT r4-interface
@@ -816,4 +851,23 @@ A test interface for new r4 supabase in emacs.
 	status)
 #+end_src
 
+*** my-interface
+A test interface for new r4 supabase in emacs.
+#+begin_src elisp
+(use-package interface
+	:load-path "site-lisp/interface/"
+	:bind ("C-c i" . my/menu)
+	:commands
+	my/menu)
+#+end_src
 
+*** emacs-ssg
+#+begin_src elisp
+;; (use-package emacs-ssg
+;;   :if (>= emacs-major-version 30)
+;;   :vc (:url "https://gitlab.com/sctlib/emacs-ssg.git" :rev :newest))
+
+;; (use-package emacs-ssg-local
+;;   :vc t
+;;   :load-path "~/src/sctlib/emacs-ssg/")
+#+end_src
