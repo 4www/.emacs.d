@@ -635,14 +635,15 @@ separately, see =eglot-server-programs= for expected values.
 #+end_src
 
 *** COMMENT corfu
-Alternative to =company= for completion.
+Commented out until emacs 31. Alternative to =company= for completion.
 #+begin_src elisp
 (use-package corfu
   :init
   (global-corfu-mode))
+
 #+end_src
 
-*** COMMENT company
+*** company
 Provide auto-completion, and enable it globally =C-n= and =C-p= to
 navigate through completion options, and =C-s= to search through them
 (when the dropwdown completion menu is open).
@@ -740,7 +741,6 @@ us, use web-mode instead.
 #+end_src
 
 *** biome 
-
 #+begin_src elisp
 (use-package lsp-biome
   :vc (:url "https://github.com/cxa/lsp-biome" :rev :newest))
