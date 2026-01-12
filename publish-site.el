@@ -9,10 +9,8 @@
 
 (require 'package)
 (package-initialize)
-(add-to-list 'package-archives '("" . "https://orgmode.org/elpa/") t)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-refresh-contents)
-(package-install 'org-plus-contrib)
 (package-install 'htmlize)
 
 ;; load a theme, to inherit some styles (html source blocks?)
@@ -65,7 +63,7 @@
 			       :publishing-function '(org-html-publish-to-html)
 			       :publishing-directory "./public"
 			       :auto-sitemap nil
-			       :with-autor nil
+			       :with-author nil
 			       :with-creator nil
 			       :with-date nil
 			       :section-number nil
@@ -79,7 +77,7 @@
 			       :publishing-directory "./public"
 			       :publishing-function 'org-publish-attachment
 			       )
-		   (list "site" :components '("site-org"))))
+		   (list "site" :components '("site-org" "site-static"))))
 
 (provide 'publish)
 ;;; publish.el ends here

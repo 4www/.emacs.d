@@ -8,15 +8,18 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    container:
-      image: iquiw/alpine-emacs
 
     env:
-      SSG_BASE_PATH: emacs
+      SSG_BASE_PATH: .emacs.d
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install Emacs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y emacs-nox
 
       - name: Build site
         run: |
