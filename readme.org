@@ -323,12 +323,9 @@ Pinentry should load after =exwm=, so windows system is loaded before.
   (require 'org-crypt)
   (org-crypt-use-before-save-magic)
 
-  ;; Use a default gpg key for encrypting `*.org.gpg` files and `org-encrypt-entry`
-  ;; pseudo-concat-anonymity for "no-grep".
-  (let ((key (concat
-	            "0" "D" "E" "5"
-	            "CBA2A8FE5321880ED070D784362D37D"
-	            "C" "A" "B" "0" "0")))
+  ;; Set GPG public key for encrypting `*.org.gpg` files
+  ;; Find yours with: gpg --list-keys --keyid-format LONG
+  (let ((key "0DE5CBA2A8FE5321880ED070D784362D37DCAB00"))
     (setq epa-file-encrypt-to key)
     (setq org-crypt-key key)))
 #+end_src
