@@ -114,7 +114,7 @@ deactivate the automatic creation of backup and lock files.
 #+begin_src elisp
 (use-package emacs
   :init
-  (setq backup-directory-alist `(("." . (concat user-emacs-directory "backups"))))
+  (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
 
   ;; do not make bakup files and disable auto-save,
   ;; because of the file artifacts they create
@@ -147,10 +147,8 @@ file buffer in emacs (so we see the latest version).
 #+end_src
 
 ** whitespaces (and tabs)
-Use whitespace-mode globally to always display whitespaces in buffers
-(because we like to catch trailling whitespaces and see
-indentation). Also, let's not show whitespace-characters in some modes
-where it is too annoying to look at.
+Enable whitespace-mode globally, but exclude it from certain modes
+where it is too annoying to look at (org, magit, dired).
 #+begin_src elisp
 (use-package emacs
   :init
@@ -159,7 +157,7 @@ where it is too annoying to look at.
                       magit-mode
                       magit-status-mode
                       dired-mode))
-  (global-whitespace-mode -1)
+  (global-whitespace-mode 1)
 
   ;; a little hack, so long lines are not marked as errors by whitespace-mode
   (setq-default whitespace-line-column 500))
@@ -194,7 +192,6 @@ Adjust the font size depending on screen size.
 (use-package emacs
   :if (> (display-pixel-width) 1400)
   :init
-  (set-face-attribute 'default nil :height 120)
   (set-face-attribute 'default nil :height 116))
 #+end_src
 
@@ -215,10 +212,9 @@ Define the default shell to being =bash= (in guix profile) in =eshell= and
   (setq shell-file-name "bash")
   (setq shell-command-switch "-ic")
 
-  (defadvice ansi-term (before force-bash)
-    (interactive (list default-shell)))
-
-  (ad-activate 'ansi-term))
+  (advice-add 'ansi-term :before
+              (lambda (&rest _args)
+                (interactive (list default-shell)))))
 #+end_src
 
 An interactive function to create a new =eshell= buffer instead of each
@@ -242,9 +238,11 @@ If =eshell= does not render content properly also try
 
 Install vterm (a claude.el code dependency) — on linux requires
 =libtool-bin= and =cmake= and =libvterm= to work.
+To install: M-x package-install RET vterm RET
 #+begin_src elisp
 (use-package vterm
-  :ensure t)
+  :ensure nil
+  :defer t)
 #+end_src
 
 Also =shell=, it knows how to evaluate lisp code in its buffer.
@@ -270,10 +268,6 @@ packages can be downloaded from.
 	      '(("melpa"        . "https://melpa.org/packages/")
 	        ("gnu"          . "https://elpa.gnu.org/packages/")))
   :init
-  ;; Load Emacs Lisp packages, and activate them.
-  (package-initialize)
-  ;; Download descriptions of all configured ELPA packages.
-  ;; (package-refresh-contents)
   ;; Treat every package as though it had `:ensure t` to download its files
   (setq use-package-always-ensure t))
 #+end_src
@@ -430,13 +424,6 @@ The standard unix password manager in emacs.
 *** pass
 #+begin_src elisp
 (use-package pass)
-#+end_src
-
-*** COMMENT password-store
-commented out because no website for this package, and not reachable
-domain for the author's email.
-#+begin_src elisp
-(use-package password-store)
 #+end_src
 
 *** password-store-otp
@@ -622,28 +609,6 @@ separately, see =eglot-server-programs= for expected values.
               ("C-c ! l" . flymake-show-buffer-diagnostics)))
 #+end_src
 
-*** COMMENT icomplete
-#+begin_src elisp
-(use-package icomplete
-  :bind (:map icomplete-minibuffer-map
-              ("C-n" . icomplete-forward-completions)
-              ("C-p" . icomplete-backward-completions)
-              ("C-v" . icomplete-vertical-toggle)
-              ("RET" . icomplete-force-complete-and-exit))
-  :config
-  ;; (fido-mode 1)
-  (icomplete-mode 1))
-#+end_src
-
-*** COMMENT corfu
-Commented out until emacs 31. Alternative to =company= for completion.
-#+begin_src elisp
-(use-package corfu
-  :init
-  (global-corfu-mode))
-
-#+end_src
-
 *** company
 Provide auto-completion, and enable it globally =C-n= and =C-p= to
 navigate through completion options, and =C-s= to search through them
@@ -658,13 +623,6 @@ navigate through completion options, and =C-s= to search through them
   (company-tooltip-align-annotations 't)
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.1))
-#+end_src
-
-*** COMMENT flycheck
-#+begin_src elisp
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode))
 #+end_src
 
 *** markdown
@@ -753,28 +711,9 @@ us, use web-mode instead.
   :vc (:url "https://github.com/c3lang/c3-ts-mode" :rev :newest))
 #+end_src
 
-*** COMMENT CSV
-#+begin_src elisp
-(use-package csv)
-#+end_src
-
-*** COMMENT JSON
-This mode gives json syntax highlighting.
-#+begin_src elisp
-(use-package json)
-#+end_src
-
-Also note =C-u M-|= (shell command on region), then =python -m json.tool=,
-to format json in a buffer.
-
 *** golang
 #+begin_src elisp
 (use-package go-mode)
-#+end_src
-
-*** COMMENT python
-#+begin_src elisp
-(use-package pyenv-mode)
 #+end_src
 
 *** rust
@@ -785,26 +724,6 @@ to format json in a buffer.
 *** java/kotlin
 #+begin_src elisp
 (use-package kotlin-mode)
-#+end_src
-
-*** COMMENT clojure
-#+begin_src elisp
-(use-package clojure-mode)
-#+end_src
-
-*** COMMENT clojurescript
-#+begin_src elisp
-(use-package cider
-  :preface
-  (require 'ob-clojure)
-  (setq org-babel-clojure-backend 'cider))
-#+end_src
-
-*** COMMENT nix
-For nix package manager and expressions.
-#+begin_src elisp
-(use-package nix-mode
-  :mode "\\.nix\\'")
 #+end_src
 
 *** docker
@@ -839,7 +758,7 @@ Svelte files syntax highlighting.
   (setq gptel-api-key (auth-source-pick-first-password
                        :host "api.openai.com"
                        :user "apikey")))
-(setenv "OPENAI_API_KEU" (auth-source-pick-first-password
+(setenv "OPENAI_API_KEY" (auth-source-pick-first-password
                           :host "api.openai.com"
                           :user "apikey"))
 #+end_src
@@ -852,16 +771,6 @@ Svelte files syntax highlighting.
   (claude-code-ide-emacs-tools-setup))
 #+end_src
 ** custom packages
-*** COMMENT r4-interface
-A test interface for new r4 supabase in emacs.
-#+begin_src elisp
-(use-package r4-interface
-	:bind ("C-c 4 4" . status)
-	:load-path "~/.emacs.d/lisp/r4-interface"
-	:commands
-	status)
-#+end_src
-
 *** my-interface
 A test interface for new r4 supabase in emacs.
 #+begin_src elisp
@@ -872,13 +781,3 @@ A test interface for new r4 supabase in emacs.
 	my/menu)
 #+end_src
 
-*** emacs-ssg
-#+begin_src elisp
-;; (use-package emacs-ssg
-;;   :if (>= emacs-major-version 30)
-;;   :vc (:url "https://gitlab.com/sctlib/emacs-ssg.git" :rev :newest))
-
-;; (use-package emacs-ssg-local
-;;   :vc t
-;;   :load-path "~/src/sctlib/emacs-ssg/")
-#+end_src
