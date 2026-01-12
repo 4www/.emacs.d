@@ -770,14 +770,5 @@ Svelte files syntax highlighting.
   :config
   (claude-code-ide-emacs-tools-setup))
 #+end_src
-** custom packages
-*** my-interface
-A test interface for new r4 supabase in emacs.
-#+begin_src elisp
-(use-package interface
-	:load-path "site-lisp/interface/"
-	:bind ("C-c i" . my/menu)
-	:commands
-	my/menu)
-#+end_src
+
 
