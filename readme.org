@@ -197,6 +197,7 @@ Adjust the font size depending on screen size.
   (set-face-attribute 'default nil :height 120)
   (set-face-attribute 'default nil :height 116))
 #+end_src
+
 ** line-space
 #+begin_src elisp
 (use-package emacs
@@ -267,7 +268,6 @@ packages can be downloaded from.
   (setq package-enable-at-startup nil)
   (setq package-archives
 	      '(("melpa"        . "https://melpa.org/packages/")
-	        ("org"          . "https://orgmode.org/elpa/")
 	        ("gnu"          . "https://elpa.gnu.org/packages/")))
   :init
   ;; Load Emacs Lisp packages, and activate them.
@@ -504,16 +504,16 @@ Move text up and down lines.
 For CamelCase snake_case and kebap-case conversions.
 #+begin_src elisp
 (use-package string-inflection)
-#+end_scr
+#+end_src
+
 ** ido
 #+begin_src elisp
 (use-package ido
   :init
-  (ido-mode 1)
-  (ido-everywhere)
+  (setq ido-enable-flex-matching t)
   :config
+  (ido-mode "both")
   (use-package flx-ido
-    :init (setq ido-enable-flex-matching t)
     :config (flx-ido-mode 1)))
 #+end_src
 
@@ -528,6 +528,11 @@ Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jaru
 	(setq ebuku-results-limit 200))
 #+end_src
 
+** treemacs
+#+begin_src elisp
+(use-package treemacs)
+#+end_src
+
 ** languages
 *** treesitter
 =treesit.el= seems to be built-in, but cannot have it in
@@ -537,9 +542,8 @@ modes that depend on it. Check this [[https://tree-sitter.github.io/tree-sitter/
 associated grammar in a repo]] and the
 =tree-sitter-major-mode-language-alist= variable.
 #+begin_src elisp
-(use-package tree-sitter
-  :if (treesit-available-p)
-  :init
+;; Use built-in treesit (Emacs 29+) instead of old tree-sitter package
+(when (treesit-available-p)
   (setq treesit-language-source-alist
         '((bash "https://github.com/tree-sitter/tree-sitter-bash")
           (cmake "https://github.com/uyha/tree-sitter-cmake")
@@ -556,21 +560,20 @@ associated grammar in a repo]] and the
           (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
           (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
           (yaml "https://github.com/ikatyang/tree-sitter-yaml")
-          (astro "https://github.com/virchau13/tree-sitter-astro")))
+          (astro "https://github.com/virchau13/tree-sitter-astro")
+          (svelte "https://github.com/Himujjal/tree-sitter-svelte" "master" "src")
+          (c3 "https://github.com/c3lang/tree-sitter-c3")))
   (setq major-mode-remap-alist
         '((typescript-mode . typescript-ts-mode)
           (yaml-mode . yaml-ts-mode)
           (bash-mode . bash-ts-mode)
           (js2-mode . js-ts-mode)
-          (astro . astro-mode)
+          (svelte-mode . svelte-ts-mode)
           (json-mode . json-ts-mode)
           (css-mode . css-ts-mode)
           (python-mode . python-ts-mode)))
-  :config
-  ;; (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
-  (global-tree-sitter-mode))
-
-(use-package tree-sitter-langs)
+  ;; Install grammars with: (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
+  )
 #+end_src
 
 *** eglot
@@ -596,6 +599,7 @@ separately, see =eglot-server-programs= for expected values.
                                (:typescript (:tsdk "./node_modules/typescript/lib")))))
   ;; (add-to-list 'eglot-server-programs
   ;;              '(svelte-mode . ("svelteserver" "--stdio")))
+
   :bind (:map
          eglot-mode-map
          ("C-c c a" . eglot-code-actions)
@@ -621,7 +625,7 @@ separately, see =eglot-server-programs= for expected values.
               ("C-c ! l" . flymake-show-buffer-diagnostics)))
 #+end_src
 
-*** icomplete
+*** COMMENT icomplete
 #+begin_src elisp
 (use-package icomplete
   :bind (:map icomplete-minibuffer-map
@@ -630,7 +634,7 @@ separately, see =eglot-server-programs= for expected values.
               ("C-v" . icomplete-vertical-toggle)
               ("RET" . icomplete-force-complete-and-exit))
   :config
-  (fido-mode 1)
+  ;; (fido-mode 1)
   (icomplete-mode 1))
 #+end_src
 
@@ -746,6 +750,12 @@ us, use web-mode instead.
   :vc (:url "https://github.com/cxa/lsp-biome" :rev :newest))
 #+end_src
 
+*** c3
+#+begin_src elisp
+(use-package c3-ts-mode
+  :vc (:url "https://github.com/c3lang/c3-ts-mode" :rev :newest))
+#+end_src
+
 *** COMMENT CSV
 #+begin_src elisp
 (use-package csv)
@@ -760,7 +770,7 @@ This mode gives json syntax highlighting.
 Also note =C-u M-|= (shell command on region), then =python -m json.tool=,
 to format json in a buffer.
 
-*** COMMENT golang
+*** golang
 #+begin_src elisp
 (use-package go-mode)
 #+end_src
@@ -818,11 +828,15 @@ For nix package manager and expressions.
 *** svelte
 Svelte files syntax highlighting.
 #+begin_src elisp
-(use-package svelte-mode)
+(use-package svelte-ts-mode
+  :after eglot
+  :vc (:url "https://github.com/leafOfTree/svelte-ts-mode" :rev :newest)
+  :config
+  (add-to-list 'eglot-server-programs '(svelte-ts-mode . ("svelteserver" "--stdio"))))
 #+end_src
 
 *** gptel
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package gptel
   :init
   (setq gptel-api-key (auth-source-pick-first-password

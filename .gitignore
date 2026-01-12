@@ -19,6 +19,7 @@ elpa/
 tree-sitter/
 tutorial/
 url/
+.cache/
 
 # package config files
 .mc-lists.el
