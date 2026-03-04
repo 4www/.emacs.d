@@ -253,6 +253,36 @@ Also =shell=, it knows how to evaluate lisp code in its buffer.
   (setq diary-file "~/notes/diary.org.gpg"))
 #+end_src
 
+** emacs rss =newsticker=
+Build into emacs defaults, with the command =newsticker-show-news= we get an rss feed client, to read, subscribe.
+#+begin_src elisp
+(use-package newsticker
+  :init
+  ;; https://codelearn.me/2025/04/09/emacs-newsticker.html
+  (defun my/close-newsticker ()
+    "Kill all tree-view related buffers."
+    (kill-buffer "*Newsticker List*")
+    (kill-buffer "*Newsticker Item*")
+    (kill-buffer "*Newsticker Tree*"))
+
+  (advice-add 'newsticker-treeview-quit :after 'my/close-newsticker)
+
+  :config
+  (setq newsticker-url-list
+        (with-temp-buffer
+          (insert-file-contents "~/notes/rss/newsticker-feeds.el")
+          (read (current-buffer)))))
+#+end_src
+
+In the file =newsticker-feeds.el= is a list of the rss feed we want to subscribe to.
+#+begin_example elisp
+(
+ ("<name>" "<url>")
+ ("Example Website" "https://example.org/index.rss")
+)
+
+#+end_example
+
 * package manager
 To use emacs packages, we first need to require its built-in
 packagement magement functionnalities.
@@ -638,6 +668,10 @@ navigate through completion options, and =C-s= to search through them
 (use-package yaml-mode)
 #+end_src
 
+*** logview
+#+begin_src elisp
+(use-package logview)
+#+end_src
 *** typescript
 #+begin_src elisp
 (use-package typescript-ts-mode
@@ -748,9 +782,11 @@ Svelte files syntax highlighting.
   :after eglot
   :vc (:url "https://github.com/leafOfTree/svelte-ts-mode" :rev :newest)
   :config
-  (add-to-list 'eglot-server-programs '(svelte-ts-mode . ("svelteserver" "--stdio"))))
+  (add-to-list 'eglot-server-programs '(svelte-ts-mode . ("svelteserver" "--stdio")))
+  :mode (("\\.svelte\\'" . svelte-ts-mode)))
 #+end_src
 
+** ai
 *** gptel
 #+begin_src elisp
 (use-package gptel
@@ -762,6 +798,7 @@ Svelte files syntax highlighting.
                           :host "api.openai.com"
                           :user "apikey"))
 #+end_src
+
 *** claude code
 #+begin_src elisp
 (use-package claude-code-ide
@@ -772,3 +809,25 @@ Svelte files syntax highlighting.
 #+end_src
 
 
+** other
+#+begin_src elisp
+(use-package osm
+  :bind ("C-c m" . osm-prefix-map) ;; Alternatives: `osm-home' or `osm'
+
+  :custom
+  ;; Take a look at the customization group `osm' for more options.
+  (osm-default-server 'default) ;; Configure the tile server
+  (osm-default-zoom 15)         ;; Default zoom level
+  (osm-copyright t)             ;; Display the copyright information
+  (osm-home (list 0 0 3))       ;; Home, configure `calendar-latitude/longitude' instead
+
+  :config
+
+  ;; Add custom servers, see also https://github.com/minad/osm/wiki
+  ;; (osm-add-server 'myserver
+  ;;   :name "My tile server"
+  ;;   :group "Custom"
+  ;;   :description "Tiles based on aerial images"
+  ;;   :url "https://myserver/tiles/%z/%x/%y.png?apikey=%k")
+)
+#+end_src

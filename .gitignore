@@ -9,6 +9,7 @@ session.*
 projects
 bookmarks
 timelog
+logview-cache.extmap
 
 # default emacs folders
 eshell/
@@ -20,6 +21,7 @@ tree-sitter/
 tutorial/
 url/
 .cache/
+newsticker/
 
 # package config files
 .mc-lists.el
