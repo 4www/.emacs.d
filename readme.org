@@ -197,7 +197,6 @@ Define the default shell to being =bash= (in guix profile) in =eshell= and
   :init
   (defvar default-shell "/bin/bash")
   (setq shell-file-name "bash")
-  (setq shell-command-switch "-ic")
 
   (advice-add 'ansi-term :before
               (lambda (&rest _args)
@@ -299,7 +298,7 @@ For eshell to resolve node when installed with nvm.
 #+begin_src elisp
 (use-package exec-path-from-shell
   :ensure t
-  :config (when (memq window-system '(mac ns x))
+  :config (when (or (daemonp) (memq window-system '(mac ns x pgtk)))
             (exec-path-from-shell-initialize)))
 #+end_src
 ** pgp/gpg
