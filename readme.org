@@ -522,13 +522,16 @@ For CamelCase snake_case and kebab-case conversions.
   :ensure t)
 #+end_src
 
-** fido
-Built-in vertical completion in the minibuffer, for files, buffers and
-commands; with flex matching (like =ido= with =flx-ido=).
+** ido
 #+begin_src elisp
-(use-package icomplete
-  :init
-  (fido-vertical-mode 1))
+(use-package ido
+  :custom
+  (ido-enable-flex-matching t)
+  :config
+  (ido-mode "both")
+  (use-package flx-ido
+    :ensure t
+    :config (flx-ido-mode 1)))
 #+end_src
 
 ** web bookmarks
