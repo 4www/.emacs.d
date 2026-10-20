@@ -597,8 +597,8 @@ separately, see =eglot-server-programs= for expected values.
                '(astro-mode . ("astro-ls" "--stdio"
                                :initializationOptions
                                (:typescript (:tsdk "./node_modules/typescript/lib")))))
-  ;; (add-to-list 'eglot-server-programs
-  ;;              '(svelte-mode . ("svelteserver" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(svelte-ts-mode . ("svelteserver" "--stdio")))
 
   :bind (:map
          eglot-mode-map
@@ -765,10 +765,7 @@ us, use web-mode instead.
 Svelte files syntax highlighting.
 #+begin_src elisp
 (use-package svelte-ts-mode
-  :after eglot
   :vc (:url "https://github.com/leafOfTree/svelte-ts-mode" :rev :newest)
-  :config
-  (add-to-list 'eglot-server-programs '(svelte-ts-mode . ("svelteserver" "--stdio")))
   :mode (("\\.svelte\\'" . svelte-ts-mode)))
 #+end_src
 
