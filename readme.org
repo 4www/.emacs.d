@@ -66,7 +66,7 @@ It is great to be able to "cycle through the copy/paste ring" (used like undo/re
   ("\M-Y" . 'yank-pop-forwards))
 #+end_src
 
-** reload/visit this emacs configuraton
+** reload/visit this emacs configuration
 Convenience function to visit and reload our emacs configuration files.
 #+begin_src elisp
 (use-package emacs
@@ -99,7 +99,7 @@ default one.
   ("C-c b" . 'find-scratch-buffer))
 #+end_src
 
-* Defaults behaviors
+* Default behaviors
 ** Backup files
 Set emacs backup and auto-save folder to =~/<emacs-dir>/backups=, so
 they do not create file artifacts next to our files, but deactivate
@@ -114,7 +114,7 @@ the automatic creation of lock files.
   (setq auto-save-file-name-transforms
         `((".*" ,(concat user-emacs-directory "backups/") t)))
 
-  ;; do not create/use lockfiles (used to prevent colisions, breaks react)
+  ;; do not create/use lockfiles (used to prevent collisions, breaks react)
   (setq create-lockfiles nil))
 #+end_src
 
@@ -159,8 +159,8 @@ where it is too annoying to look at (org, magit, dired).
   (global-whitespace-mode 1))
 #+end_src
 
-** identation
-This or that, but tries to set all to use tabs for indentation.
+** indentation
+This or that, but tries to set all to use spaces for indentation.
 #+begin_src elisp
 (use-package emacs
   :init
@@ -246,7 +246,7 @@ Also =shell=, it knows how to evaluate lisp code in its buffer.
 #+end_src
 
 ** emacs rss =newsticker=
-Build into emacs defaults, with the command =newsticker-show-news= we get an rss feed client, to read, subscribe.
+Built into emacs defaults, with the command =newsticker-show-news= we get an rss feed client, to read, subscribe.
 #+begin_src elisp
 (use-package newsticker
   :init
@@ -277,7 +277,7 @@ In the file =newsticker-feeds.el= is a list of the rss feed we want to subscribe
 
 * package manager
 To use emacs packages, we first need to require its built-in
-packagement magement functionnalities.
+package management functionalities.
 
 We can also define additional package archives, where the remote
 packages can be downloaded from.
@@ -362,14 +362,14 @@ allow-loopback-pinentry
 pinentry-program /usr/bin/pinentry-emacs
 #+end_quote
 
-Don't foget to add the keygrip of the GPG managed SSH (authentication,
+Don't forget to add the keygrip of the GPG managed SSH (authentication,
 =[A]= key) to the file =~/.gnupg/sshcontrol=.
 
 #+begin_src bash
 # find the keygrip of secret keys (GPG, SSH managed by gpg)
 gpg --list-secret-keys --keyid-format LONG --with-keygrip
 
-# check if the ssh-agent has been feeded the key by gpg-agent
+# check if the ssh-agent has been fed the key by gpg-agent
 ssh-add -l # this should display our key when it works
 
 # check with github if we can connect with our SSH key
@@ -403,7 +403,7 @@ Example auth-source usages.
   :ensure t)
 #+end_src
 
-Highlights git diffs in the margit (fringe) of files, and dired
+Highlights git diffs in the margin (fringe) of files, and dired
 buffers, when in a git repository.
 #+begin_src elisp
 (use-package diff-hl
@@ -505,8 +505,8 @@ Move text up and down lines.
 	       ("M-n" . move-text-down)))
 #+end_src
 
-** string inflextions, text convert
-For CamelCase snake_case and kebap-case conversions.
+** string inflections, text convert
+For CamelCase snake_case and kebab-case conversions.
 #+begin_src elisp
 (use-package string-inflection
   :ensure t)
@@ -525,7 +525,7 @@ For CamelCase snake_case and kebap-case conversions.
 #+end_src
 
 ** web bookmarks
-Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jarun/buku][buku]] web boomarks.
+Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jarun/buku][buku]] web bookmarks.
 #+begin_src elisp
 (use-package ebuku
   :if (>= emacs-major-version 30)
@@ -536,7 +536,7 @@ Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jaru
 #+end_src
 
 ** speedbar (file tree)
-Not using =treemacs=, since =speedbar-window= gives us the same buit-in.
+Not using =treemacs=, since =speedbar-window= gives us the same built-in.
 #+begin_src elisp
 (use-package emacs
   :bind (("M-i" . speedbar-window)))
@@ -544,10 +544,10 @@ Not using =treemacs=, since =speedbar-window= gives us the same buit-in.
 
 ** languages
 *** treesitter
-The package =treesit= takes care of syntax highlighting via language
-servers. It has been built in since Emacs 29, in version 31 are these
+The package =treesit= takes care of syntax highlighting via tree-sitter
+grammars (language parsers). It has been built in since Emacs 29, in version 31 are these
 two options, making it nice and easy to get working grammars for every
-languages. No need for extra packages for typescript, go, rust or
+language. No need for extra packages for typescript, go, rust or
 yaml, their built-in =*-ts-mode= are used.
 
 #+begin_src elisp
@@ -612,7 +612,7 @@ only started for the languages we have a server for (not elisp).
 *** company
 Provide auto-completion, and enable it globally =C-n= and =C-p= to
 navigate through completion options, and =C-s= to search through them
-(when the dropwdown completion menu is open).
+(when the dropdown completion menu is open).
 #+begin_src elisp
 (use-package company
   :ensure t
