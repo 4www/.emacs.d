@@ -442,6 +442,17 @@ See [[https://emacs.stackexchange.com/questions/16652/change-the-behavior-of-org
   (org-edit-src-content-indentation 0))
 #+end_src
 
+** images
+Emacs supports the =webp= image format natively, but not some others
+(like =heic=). =imagemagick= or =ffmpeg= should also be installed on
+the machine.
+#+begin_src elisp
+(use-package image-dired
+  :custom
+  ;; Enable converting external formats (ie. heic) to internal ones.
+  (image-use-external-converter t))
+#+end_src
+
 ** passwordstore
 The standard unix password manager in emacs.
 
