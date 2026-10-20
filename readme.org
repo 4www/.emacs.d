@@ -376,7 +376,6 @@ ssh -v git@github.com
 #+begin_src elisp
 (use-package auth-source
   :config
-  (setq auth-source-debug t)
   (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo" "~/.netrc")))
 #+end_src
 
