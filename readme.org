@@ -549,45 +549,16 @@ Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jaru
 
 ** languages
 *** treesitter
-=treesit.el= seems to be built-in, but cannot have it in
-use-package. Somehow tree-sitter is still required and provides to
-global mode. This package(s) provide syntax highlighting for major
-modes that depend on it. Check this [[https://tree-sitter.github.io/tree-sitter/][list of all languages]], and [[https://github.com/tree-sitter/tree-sitter-cpp/blob/56455f4245baf4ea4e0881c5169de69d7edd5ae7/grammar.js#L53][name of
-associated grammar in a repo]] and the
-=tree-sitter-major-mode-language-alist= variable.
+The package =treesit= takes care of syntax highlighting via language
+servers. It has been built in since Emacs 29, in version 31 are these
+two options, making it nice and easy to get working grammars for every
+languages.
+
 #+begin_src elisp
-;; Use built-in treesit (Emacs 29+) instead of old tree-sitter package
-(when (treesit-available-p)
-  (setq treesit-language-source-alist
-        '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-          (cmake "https://github.com/uyha/tree-sitter-cmake")
-          (css "https://github.com/tree-sitter/tree-sitter-css")
-          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-          (go "https://github.com/tree-sitter/tree-sitter-go")
-          (rust "https://github.com/tree-sitter/tree-sitter-rust")
-          (html "https://github.com/tree-sitter/tree-sitter-html")
-          (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-          (json "https://github.com/tree-sitter/tree-sitter-json")
-          (make "https://github.com/alemuller/tree-sitter-make")
-          (python "https://github.com/tree-sitter/tree-sitter-python")
-          (toml "https://github.com/tree-sitter/tree-sitter-toml")
-          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-          (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-          (yaml "https://github.com/ikatyang/tree-sitter-yaml")
-          (astro "https://github.com/virchau13/tree-sitter-astro")
-          (svelte "https://github.com/Himujjal/tree-sitter-svelte" "master" "src")
-          (c3 "https://github.com/c3lang/tree-sitter-c3")))
-  (setq major-mode-remap-alist
-        '((typescript-mode . typescript-ts-mode)
-          (yaml-mode . yaml-ts-mode)
-          (bash-mode . bash-ts-mode)
-          (js2-mode . js-ts-mode)
-          (svelte-mode . svelte-ts-mode)
-          (json-mode . json-ts-mode)
-          (css-mode . css-ts-mode)
-          (python-mode . python-ts-mode)))
-  ;; Install grammars with: (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
-  )
+(use-package treesit
+  :custom
+  (treesit-auto-install-grammar 'always)
+  (treesit-enabled-modes t))
 #+end_src
 
 *** eglot
