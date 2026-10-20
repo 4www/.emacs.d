@@ -769,8 +769,8 @@ Svelte files syntax highlighting.
   (claude-code-ide-emacs-tools-setup))
 #+end_src
 
-
 ** other
+*** open street map
 #+begin_src elisp
 (use-package osm
   :ensure t
@@ -792,4 +792,15 @@ Svelte files syntax highlighting.
   ;;   :description "Tiles based on aerial images"
   ;;   :url "https://myserver/tiles/%z/%x/%y.png?apikey=%k")
 )
+#+end_src
+
+*** radio4000
+Use a custom package to communicate with r4.
+
+#+begin_src elisp
+(use-package r4
+  :vc (:url "https://github.com/radio4000/r4.el" :rev :newest)
+  :bind ("C-c r" . r4)
+  :custom
+  (r4-download-directory "~/Music/radio4000/"))
 #+end_src
