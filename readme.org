@@ -307,7 +307,6 @@ For eshell to resolve node when installed with nvm.
 (use-package epg
   :config
   ;; ensure environmental variables required for GPG are set
-  (setenv "GPG_AGENT_INFO" nil)
   (setenv "SSH_AUTH_SOCK"
           (car (process-lines "gpgconf" "--list-dirs" "agent-ssh-socket")))
   ;; should be something like
