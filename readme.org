@@ -144,10 +144,13 @@ where it is too annoying to look at (org, magit, dired).
                       magit-mode
                       magit-status-mode
                       dired-mode))
-  (global-whitespace-mode 1)
-
-  ;; a little hack, so long lines are not marked as errors by whitespace-mode
-  (setq-default whitespace-line-column 500))
+  ;; the default style, without `lines`, so long lines are not marked
+  ;; as errors by whitespace-mode
+  (setq-default whitespace-style
+                '(face tabs spaces trailing space-before-tab newline
+                       indentation empty space-after-tab space-mark
+                       tab-mark newline-mark missing-newline-at-eof))
+  (global-whitespace-mode 1))
 #+end_src
 
 ** identation
