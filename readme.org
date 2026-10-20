@@ -34,31 +34,17 @@ Alias emacs' UI yes-or-no questions, into y-or-n questions.
 #+end_src
 
 * Themes
-Some functions with shortcuts to toggle one theme or another. If emacs
-is launched in graphical environment (so, not when in =emacs -nw=), use
-the dark theme by default.
+The built-in modus themes come with a shortcut to toggle one theme or
+another. If emacs is launched in graphical environment (so, not when
+in =emacs -nw=), use the dark theme by default.
 #+begin_src elisp
 (use-package emacs
-  :init
-  (defun switch-to-dark-theme ()
-    "Switch the current theme to a user customized terminal dark theme"
-    (interactive)
-    (load-theme 'modus-vivendi)
-    (disable-theme 'modus-operandi))
-
-  (defun switch-to-light-theme ()
-    "Disable the dark theme, to default, to the default light one"
-    (interactive)
-    (disable-theme 'modus-vivendi)
-    (if (custom-theme-p 'modus-operandi)
-        (load-theme 'modus-operandi)))
+  :custom
+  (modus-themes-to-toggle '(modus-vivendi modus-operandi))
   :bind
-  ("C-c t" . 'switch-to-dark-theme)
-  ("C-c T" . 'switch-to-light-theme)
+  ("C-c t" . modus-themes-toggle)
   :config
-  (if (display-graphic-p)
-      (switch-to-dark-theme)
-    (switch-to-light-theme)))
+  (load-theme (if (display-graphic-p) 'modus-vivendi 'modus-operandi) t))
 #+end_src
 
 * Custom functions
