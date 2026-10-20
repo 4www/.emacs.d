@@ -561,7 +561,7 @@ only started for the languages we have a server for (not elisp).
 (use-package eglot
   :hook (((js-ts-mode typescript-ts-mode tsx-ts-mode
            go-ts-mode rust-ts-mode kotlin-mode
-           svelte-ts-mode astro-mode)
+           svelte-ts-mode astro-ts-mode)
           . eglot-ensure))
   :custom
   (eglot-autoshutdown t)
@@ -573,7 +573,7 @@ only started for the languages we have a server for (not elisp).
   (add-to-list 'eglot-server-programs
                '((kotlin-ts-mode kotlin-mode) . ("bash" "/home/u0/bin/kotlin-0.252.17811/kotlin-lsp.sh" "--stdio")))
   (add-to-list 'eglot-server-programs
-               '(astro-mode . ("astro-ls" "--stdio"
+               '(astro-ts-mode . ("astro-ls" "--stdio"
                                :initializationOptions
                                (:typescript (:tsdk "./node_modules/typescript/lib")))))
   (add-to-list 'eglot-server-programs
@@ -681,10 +681,8 @@ us, use web-mode instead.
 
 *** astro
 #+begin_src elisp
-(define-derived-mode astro-mode web-mode "astro")
-(setq auto-mode-alist
-      (append '((".*\\.astro\\'" . astro-mode))
-              auto-mode-alist))
+(use-package astro-ts-mode
+  :ensure t)
 #+end_src
 
 *** c3
