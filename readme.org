@@ -68,7 +68,7 @@ Convenience function to visit and reload our emacs configuration files.
   (defun config-visit()
     "Visit the emacs config directory, to quickly access and make changes."
     (interactive)
-    (find-file "~/.emacs.d/"))
+    (find-file user-emacs-directory))
   (defun config-reload()
     "Reload the user config, to get the latest saved changes"
     (interactive)
