@@ -758,9 +758,6 @@ Svelte files syntax highlighting.
                    (auth-source-pick-first-password
                     :host "api.openai.com"
                     :user "apikey"))))
-(setenv "OPENAI_API_KEY" (auth-source-pick-first-password
-                          :host "api.openai.com"
-                          :user "apikey"))
 #+end_src
 
 *** claude code
