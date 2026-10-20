@@ -554,7 +554,8 @@ Not using =treemacs=, since =speedbar-window= gives us the same buit-in.
 The package =treesit= takes care of syntax highlighting via language
 servers. It has been built in since Emacs 29, in version 31 are these
 two options, making it nice and easy to get working grammars for every
-languages.
+languages. No need for extra packages for typescript, go, rust or
+yaml, their built-in =*-ts-mode= are used.
 
 #+begin_src elisp
 (use-package treesit
@@ -637,24 +638,11 @@ navigate through completion options, and =C-s= to search through them
   :defer t)
 #+end_src
 
-*** yaml
-#+begin_src elisp
-(use-package yaml-mode
-  :ensure t)
-#+end_src
-
 *** logview
 #+begin_src elisp
 (use-package logview
   :ensure t)
 #+end_src
-*** typescript
-#+begin_src elisp
-(use-package typescript-ts-mode
-  :mode (("\\.tsx\\'" . typescript-ts-mode)
-         ("\\.ts\\'" . typescript-ts-mode)))
-#+end_src
-
 *** web-mode
 Use web-mode on the file extensions for HTML files. Also provides
 syntax highlighting for JavaScript; js2mode does not work so well for
@@ -714,18 +702,6 @@ us, use web-mode instead.
 #+begin_src elisp
 (use-package c3-ts-mode
   :vc (:url "https://github.com/c3lang/c3-ts-mode" :rev :newest))
-#+end_src
-
-*** golang
-#+begin_src elisp
-(use-package go-mode
-  :ensure t)
-#+end_src
-
-*** rust
-#+begin_src elisp
-(use-package rust-mode
-  :ensure t)
 #+end_src
 
 *** java/kotlin
