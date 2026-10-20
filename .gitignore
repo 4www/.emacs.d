@@ -22,6 +22,7 @@ tutorial/
 url/
 .cache/
 newsticker/
+backups/
 
 # package config files
 .mc-lists.el

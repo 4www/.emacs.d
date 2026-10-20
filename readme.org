@@ -95,17 +95,18 @@ default one.
 
 * Defaults behaviors
 ** Backup files
-Set emacs backup folder to =~/<emacs-dir>/backups=, but also
-deactivate the automatic creation of backup and lock files.
+Set emacs backup and auto-save folder to =~/<emacs-dir>/backups=, so
+they do not create file artifacts next to our files, but deactivate
+the automatic creation of lock files.
 #+begin_src elisp
 (use-package emacs
   :init
   (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
 
-  ;; do not make bakup files and disable auto-save,
-  ;; because of the file artifacts they create
-  (setq make-backup-files nil)
-  (setq auto-save-default nil)
+  ;; auto-save files go in the same folder, which has to exist
+  (make-directory (concat user-emacs-directory "backups") t)
+  (setq auto-save-file-name-transforms
+        `((".*" ,(concat user-emacs-directory "backups/") t)))
 
   ;; do not create/use lockfiles (used to prevent colisions, breaks react)
   (setq create-lockfiles nil))
