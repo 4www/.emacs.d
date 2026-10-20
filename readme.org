@@ -297,9 +297,13 @@ packages can be downloaded from.
   (setq package-archives
 	      '(("melpa"        . "https://melpa.org/packages/")
 	        ("gnu"          . "https://elpa.gnu.org/packages/")))
-  :init
-  ;; Treat every package as though it had `:ensure t` to download its files
-  (setq use-package-always-ensure t))
+  :custom
+  ;; Only download remote packages: built-in ones (like `treesit`) are
+  ;; not known to package.el, so a global `:ensure t` makes use-package
+  ;; refresh the archives and fail to install them on every startup.
+  ;; Packages from an archive must declare `:ensure t`; `:vc` ones install
+  ;; themselves.
+  (use-package-always-ensure nil))
 #+end_src
 
 * packages
@@ -307,6 +311,7 @@ packages can be downloaded from.
 For eshell to resolve node when installed with nvm.
 #+begin_src elisp
 (use-package exec-path-from-shell
+  :ensure t
   :config (when (memq window-system '(mac ns x))
             (exec-path-from-shell-initialize)))
 #+end_src
@@ -399,11 +404,13 @@ Example auth-source usages.
 
 ** git
 #+begin_src elisp
-(use-package magit)
+(use-package magit
+  :ensure t)
 #+end_src
 
 #+begin_src elisp
-(use-package forge)
+(use-package forge
+  :ensure t)
 #+end_src
 
 Highlights git diffs in the margit (fringe) of files, and dired
@@ -453,13 +460,15 @@ The standard unix password manager in emacs.
 
 *** pass
 #+begin_src elisp
-(use-package pass)
+(use-package pass
+  :ensure t)
 #+end_src
 
 *** password-store-otp
 One time passwords for 2FA authentication.
 #+begin_src elisp
-(use-package password-store-otp)
+(use-package password-store-otp
+  :ensure t)
 #+end_src
 
 ** ibuffer
@@ -498,6 +507,7 @@ keychords.
 ** multiple-cursors
 #+begin_src elisp
 (use-package multiple-cursors
+  :ensure t
   :config (setq mc/always-run-for-all t)
   :bind (("C->" . mc/mark-next-like-this)
 	       ("C-<" . mc/mark-previous-like-this)
@@ -509,6 +519,7 @@ keychords.
 Move text up and down lines.
 #+begin_src elisp
 (use-package move-text
+  :ensure t
   :config (move-text-default-bindings)
   :bind (("M-p" . move-text-up)
 	       ("M-n" . move-text-down)))
@@ -517,7 +528,8 @@ Move text up and down lines.
 ** string inflextions, text convert
 For CamelCase snake_case and kebap-case conversions.
 #+begin_src elisp
-(use-package string-inflection)
+(use-package string-inflection
+  :ensure t)
 #+end_src
 
 ** ido
@@ -528,6 +540,7 @@ For CamelCase snake_case and kebap-case conversions.
   :config
   (ido-mode "both")
   (use-package flx-ido
+    :ensure t
     :config (flx-ido-mode 1)))
 #+end_src
 
@@ -542,9 +555,11 @@ Use [[https://github.com/flexibeast/ebuku][ebuku]] for [[https://github.com/jaru
 	(setq ebuku-results-limit 200))
 #+end_src
 
-** treemacs
+** speedbar (file tree)
+Not using =treemacs=, since =speedbar-window= gives us the same buit-in.
 #+begin_src elisp
-(use-package treemacs)
+(use-package emacs
+  :bind (("M-i" . speedbar-window)))
 #+end_src
 
 ** languages
@@ -628,20 +643,21 @@ navigate through completion options, and =C-s= to search through them
 
 *** markdown
 #+begin_src elisp
-(use-package markdown-mode
-  :ensure t
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)))
+(use-package markdown-ts-mode
+  :ensure nil
+  :defer t)
 #+end_src
 
 *** yaml
 #+begin_src elisp
-(use-package yaml-mode)
+(use-package yaml-mode
+  :ensure t)
 #+end_src
 
 *** logview
 #+begin_src elisp
-(use-package logview)
+(use-package logview
+  :ensure t)
 #+end_src
 *** typescript
 #+begin_src elisp
@@ -655,7 +671,8 @@ Use web-mode on the file extensions for HTML files. Also provides
 syntax highlighting for JavaScript; js2mode does not work so well for
 us, use web-mode instead.
 #+begin_src elisp
-(use-package web-mode)
+(use-package web-mode
+  :ensure t)
 ;; (use-package web-mode
 ;;   :mode (("\\.erb\\'" . web-mode)
 ;;          ("\\.vue\\'" . web-mode)
@@ -718,22 +735,26 @@ us, use web-mode instead.
 
 *** golang
 #+begin_src elisp
-(use-package go-mode)
+(use-package go-mode
+  :ensure t)
 #+end_src
 
 *** rust
 #+begin_src elisp
-(use-package rust-mode)
+(use-package rust-mode
+  :ensure t)
 #+end_src
 
 *** java/kotlin
 #+begin_src elisp
-(use-package kotlin-mode)
+(use-package kotlin-mode
+  :ensure t)
 #+end_src
 
 *** docker
 #+begin_src elisp
 (use-package docker
+  :ensure t
   :bind ("C-c d" . docker)
   :defer t)
 #+end_src
@@ -761,6 +782,7 @@ Svelte files syntax highlighting.
 *** gptel
 #+begin_src elisp
 (use-package gptel
+  :ensure t
   :init
   (setq gptel-api-key (auth-source-pick-first-password
                        :host "api.openai.com"
@@ -783,6 +805,7 @@ Svelte files syntax highlighting.
 ** other
 #+begin_src elisp
 (use-package osm
+  :ensure t
   :bind ("C-c m" . osm-prefix-map) ;; Alternatives: `osm-home' or `osm'
 
   :custom
