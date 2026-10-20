@@ -82,7 +82,7 @@ Convenience function to visit and reload our emacs configuration files.
 
   :bind
   ("C-c e" . 'config-visit)
-  ("C-c r" . 'config-reload))
+  ("C-c R" . 'config-reload))
 #+end_src
 
 ** Scratch buffer
