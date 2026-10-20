@@ -721,12 +721,6 @@ us, use web-mode instead.
               auto-mode-alist))
 #+end_src
 
-*** biome 
-#+begin_src elisp
-(use-package lsp-biome
-  :vc (:url "https://github.com/cxa/lsp-biome" :rev :newest))
-#+end_src
-
 *** c3
 #+begin_src elisp
 (use-package c3-ts-mode
