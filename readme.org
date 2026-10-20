@@ -167,9 +167,6 @@ Auto-close parenthesis when opening one; should work with =([{=
 (use-package emacs
   :init
   ;; automatically adds closing matching pair when the opening is inserted.
-  (setq-default electric-pair-pairs '((?\( . ?\))
-                                      (?\[ . ?\])
-                                      (?\{ . ?\})))
   (electric-pair-mode 1))
 #+end_src
 
