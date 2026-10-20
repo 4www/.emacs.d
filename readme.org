@@ -1,6 +1,12 @@
 #+TITLE: emacs config file
 This file is a literate configuration file for emacs.
 
+The generated =readme.el= uses lexical binding, otherwise emacs warns
+about the missing cookie.
+#+begin_src elisp
+;;; readme.el --- emacs config -*- lexical-binding: t -*-
+#+end_src
+
 * Interface elements
 Remove the audio bell making annoying noises.
 #+begin_src elisp
