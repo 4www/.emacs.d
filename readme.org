@@ -476,7 +476,10 @@ Exclude the following folders from grep search results; for =rgrep=
 and =lgrep=.
 #+begin_src elisp
 (use-package grep
-  :config (setq grep-find-ignored-directories '("tmp" "dist" "node_modules")))
+  :config
+  ;; added to the default ones (.git, .hg, etc.)
+  (dolist (dir '("tmp" "dist" "node_modules"))
+    (add-to-list 'grep-find-ignored-directories dir)))
 #+end_src
 
 ** which-key
