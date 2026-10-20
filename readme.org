@@ -569,7 +569,8 @@ only started for the languages we have a server for (not elisp).
   (eglot-report-progress t)
   :config
   (add-to-list 'eglot-server-programs
-               '((kotlin-ts-mode kotlin-mode) . ("bash" "/home/u0/bin/kotlin-0.252.17811/kotlin-lsp.sh" "--stdio")))
+               ;; ~/bin/kotlin-lsp links to the kotlin-lsp.sh of the latest release
+               '((kotlin-ts-mode kotlin-mode) . ("kotlin-lsp" "--stdio")))
   (add-to-list 'eglot-server-programs
                '(astro-ts-mode . ("astro-ls" "--stdio"
                                :initializationOptions
