@@ -29,3 +29,6 @@ backups/
 
 # forge
 forge-database.sqlite
+# r4 (radio4000) session and history
+r4-session.eld
+r4-history.eld
