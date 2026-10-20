@@ -176,6 +176,10 @@ This or that, but tries to set all to use spaces for indentation.
 Auto-close parenthesis when opening one; should work with =([{=
 #+begin_src elisp
 (use-package emacs
+  :custom
+  (electric-pair-pairs '((?\( . ?\))
+                         (?\[ . ?\])
+                         (?\{ . ?\})))
   :init
   ;; automatically adds closing matching pair when the opening is inserted.
   (electric-pair-mode 1))
