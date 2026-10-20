@@ -565,12 +565,14 @@ languages.
 
 *** eglot
 This is a LSP client. The language server program must be installed
-separately, see =eglot-server-programs= for expected values.
+separately, see =eglot-server-programs= for expected values. It is
+only started for the languages we have a server for (not elisp).
 #+begin_src elisp
 (use-package eglot
-  :hook ((prog-mode . eglot-ensure)
-         ;; (kotlin-mode kotlin-ts-mode) . (lambda () (eglot-ensure))
-         )
+  :hook (((js-ts-mode typescript-ts-mode tsx-ts-mode
+           go-ts-mode rust-ts-mode kotlin-mode
+           svelte-ts-mode astro-mode)
+          . eglot-ensure))
   :custom
   (eglot-autoshutdown t)
   (eglot-extend-to-xref t)
