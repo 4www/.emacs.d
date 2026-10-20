@@ -606,20 +606,20 @@ only started for the languages we have a server for (not elisp).
               ("C-c ! l" . flymake-show-buffer-diagnostics)))
 #+end_src
 
-*** company
-Provide auto-completion, and enable it globally =C-n= and =C-p= to
-navigate through completion options, and =C-s= to search through them
-(when the dropdown completion menu is open).
+*** completion-preview
+Provide auto-completion, and enable it globally; the first completion
+option is previewed inline, =TAB= inserts it, =M-n= and =M-p= navigate
+through completion options, and =M-i= lists all of them.
 #+begin_src elisp
-(use-package company
-  :ensure t
-  :commands (global-company-mode)
+(use-package completion-preview
   :init
-  (global-company-mode)
+  (global-completion-preview-mode)
   :custom
-  (company-tooltip-align-annotations 't)
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.1))
+  (completion-preview-minimum-symbol-length 1)
+  (completion-preview-idle-delay 0.1)
+  :bind (:map completion-preview-active-mode-map
+              ("M-n" . completion-preview-next-candidate)
+              ("M-p" . completion-preview-prev-candidate)))
 #+end_src
 
 *** markdown
