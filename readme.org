@@ -30,7 +30,7 @@ Alias emacs' UI yes-or-no questions, into y-or-n questions.
 #+begin_src elisp
 (use-package emacs
   :config
-  (defalias 'yes-or-no-p 'y-or-n-p))
+  (setq use-short-answers t))
 #+end_src
 
 * Themes
